@@ -1,2 +1,2 @@
-# 1AHIF-discord-bot
-1AHIF discord bot with google calender api and other features
+# 1AHIF discord bot
+view the source code of `1AHIF Manager`
