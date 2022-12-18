@@ -63,7 +63,7 @@ def GetEvents() -> list:
 
     return SORTED_DATE
 
-def GetThisWeeksKlassenordner():
+def GetThisWeeksKlassenordner() -> list:
     reader = open("class_list.txt", "r")
     classList = reader.readline().split("|")
 
