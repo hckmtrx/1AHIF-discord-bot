@@ -64,6 +64,9 @@ def GetEvents() -> list:
     return SORTED_DATE
 
 def GetThisWeeksKlassenordner() -> list:
+    dateFormat = "%d.%m.%Y"
+    today = datetime.datetime.today().strftime(dateFormat)
+
     reader = open("class_list.txt", "r")
     classList = reader.readline().split("|")
 
@@ -71,18 +74,22 @@ def GetThisWeeksKlassenordner() -> list:
     lastKlassenordner = reader.readlines()
 
     for i in range(len(lastKlassenordner)):
-        lastKlassenordner[i] = lastKlassenordner[i].rstrip("\n")
+        temp = lastKlassenordner[i].rstrip("\n")
+        lastKlassenordner[i] = int(temp) if i != len(lastKlassenordner) - 1 else temp
 
-    if datetime.datetime.today().weekday() == 0 and lastKlassenordner[2] != datetime.datetime.today().strftime("%d.%m.%Y"):
-        if lastKlassenordner[0] == "16":
-            writer = open("last_klassenordner.txt", "w+")
-            writer.write("0\n" + str(len(classList) - 1) + "\n" + datetime.datetime.today().strftime("%d.%m.%Y"))
-            return classList[int(lastKlassenordner[0])]
-        else:
-            writer = open("last_klassenordner.txt", "w+")
-            writer.write(str(int(lastKlassenordner[0]) + 1) + "\n" + str(int(lastKlassenordner[1]) - 1) + "\n" + datetime.datetime.today().strftime("%d.%m.%Y"))
+    timestampToday = int(time.mktime(datetime.datetime.strptime(today, dateFormat).timetuple()))
+    timestampLastKlassenordner = int(time.mktime(datetime.datetime.strptime(lastKlassenordner[-1], dateFormat).timetuple()))
+    weeksElapsed =  (timestampToday - timestampLastKlassenordner) // 604800
 
-    return [classList[int(lastKlassenordner[0])], classList[int(lastKlassenordner[1])]]
+    lastKlassenordner[0] += weeksElapsed
+    lastKlassenordner[0] %= 17
+    lastKlassenordner[1] = len(classList) - lastKlassenordner[0] - 1
+
+    writer = open("last_klassenordner.txt", "w+")
+    writer.write(str(lastKlassenordner[0]) + "\n" + str(lastKlassenordner[1]) + "\n" + today)
+
+    klassenordner = list(dict.fromkeys([classList[lastKlassenordner[0]], classList[lastKlassenordner[1]]]))
+    return klassenordner
 
 def GetTimeBasedOnLesson(event: str, date: list) -> int:
     lessons = [[8, 00], [8, 55], [10, 00], [10, 55], [11, 50], [12, 45], [13, 40], [14, 35]]
