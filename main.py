@@ -63,6 +63,10 @@ def GetEvents() -> list:
 
     return SORTED_DATE
 
+def GetMondayOfWeek(today: str) -> int:
+    day, month, year = (int(x) for x in today.split("."))
+    return int(time.mktime(datetime.datetime.strptime(today, "%d.%m.%Y").timetuple())) - int(datetime.date(year, month, day).strftime("%w")) * 86400
+
 def GetThisWeeksKlassenordner() -> list:
     dateFormat = "%d.%m.%Y"
     today = datetime.datetime.today().strftime(dateFormat)
@@ -77,9 +81,9 @@ def GetThisWeeksKlassenordner() -> list:
         temp = lastKlassenordner[i].rstrip("\n")
         lastKlassenordner[i] = int(temp) if i != len(lastKlassenordner) - 1 else temp
 
-    timestampToday = int(time.mktime(datetime.datetime.strptime(today, dateFormat).timetuple()))
-    timestampLastKlassenordner = int(time.mktime(datetime.datetime.strptime(lastKlassenordner[-1], dateFormat).timetuple()))
-    weeksElapsed =  (timestampToday - timestampLastKlassenordner) // 604800
+    timeStampThisMonday = GetMondayOfWeek(today)
+    timestampLastKlassenordnerMonday = GetMondayOfWeek(lastKlassenordner[-1])
+    weeksElapsed =  (timeStampThisMonday - timestampLastKlassenordnerMonday) // 604800
 
     lastKlassenordner[0] += weeksElapsed
     lastKlassenordner[0] %= 17
